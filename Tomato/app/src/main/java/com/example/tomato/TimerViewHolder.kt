@@ -19,29 +19,19 @@ class TimerViewHolder (
     private val binding: TimerItemBinding,
     private val listener: StopwatchListener,
     private val resources: Resources
-): RecyclerView.ViewHolder(binding.root),CoroutineScope, LifecycleObserver {
+): RecyclerView.ViewHolder(binding.root){
 
     private var timeTimer: CountDownTimer? = null
     private var flagLive:Boolean = false
     private var id = 0
     private var curTime = 0L
     //todo
-    private val job = SupervisorJob()
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
-    private fun loadTime(timer: Timer) = launch {
-        while (flagLive) {
-            binding.customViewTwo.setCurrent(timer.startMs - timer.currentMs + UNIT_TEN_MS)
-            delay(1000)
-        }
-    }
 
     fun bind(timer: Timer) {
         binding.customViewTwo.setPeriod(timer.startMs)
         binding.customViewTwo.setCurrent(timer.startMs-timer.currentMs)
-        loadTime(timer)
+
 
         binding.stopwatchTimer.text = timer.currentMs.displayTime()
         binding.controller.isEnabled = true
@@ -96,9 +86,10 @@ class TimerViewHolder (
             val interval = UNIT_TEN_MS
 
             override fun onTick(millisUntilFinished: Long) {
-
                 timer.currentMs -= interval
+
                 binding.stopwatchTimer.text = timer.currentMs.displayTime()
+                binding.customViewTwo.setCurrent(timer.startMs - timer.currentMs + UNIT_TEN_MS)
 
                 id = timer.id
                 curTime = timer.currentMs
@@ -114,7 +105,6 @@ class TimerViewHolder (
         }
     }
     private fun finishDraw(){
-            job.cancel()
             listener.finish(id,0,true)
     }
     private fun Long.displayTime(): String {
