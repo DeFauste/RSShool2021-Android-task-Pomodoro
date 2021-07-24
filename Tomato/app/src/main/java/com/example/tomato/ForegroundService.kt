@@ -71,12 +71,13 @@ class ForegroundService : Service() {
     }
 
     private fun continueTimer(startTime: Long) {
+        val startTimeCorutine = System.currentTimeMillis()
         job = GlobalScope.launch(Dispatchers.Main) {
             while (true) {
                 notificationManager?.notify(
                     NOTIFICATION_ID,
                     getNotification(
-                        (System.currentTimeMillis() - startTime).displayTime().dropLast(3)
+                        (startTime - (System.currentTimeMillis() - startTimeCorutine)).displayTime().dropLast(3)
                     )
                 )
                 delay(INTERVAL)
