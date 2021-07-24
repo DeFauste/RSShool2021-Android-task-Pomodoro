@@ -80,11 +80,11 @@ class TimerViewHolder (
     }
 
     private fun getCountDownTimer(timer: Timer): CountDownTimer {
-        return object : CountDownTimer(PERIOD, UNIT_TEN_MS) {
+        return object : CountDownTimer(timer.currentMs, UNIT_TEN_MS) {
             val interval = UNIT_TEN_MS
 
             override fun onTick(millisUntilFinished: Long) {
-                timer.currentMs -= interval
+                timer.currentMs = millisUntilFinished
 
                 binding.stopwatchTimer.text = timer.currentMs.displayTime()
                 binding.customViewTwo.setCurrent(timer.startMs - timer.currentMs + UNIT_TEN_MS)
