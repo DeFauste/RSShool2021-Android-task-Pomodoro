@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Tomato</string>
+    <string name="textStop">STOP</string>
+    <string name="textStart">START</string>
+    <string name="textEnd">END</string>
+    <string name="add_timer">Add Timer</string>
+    <string name="timer_value">Minutes</string>
+    <string name="_0">0</string>
+    <string name="add_value_uncorrect"><![CDATA[Add value > 0]]></string>
+    <string name="_00_00_00">00:00:00</string>
+</resources>
