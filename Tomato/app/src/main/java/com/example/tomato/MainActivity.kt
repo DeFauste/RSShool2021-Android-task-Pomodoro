@@ -9,18 +9,15 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tomato.databinding.ActivityMainBinding
 
-
-class MainActivity : AppCompatActivity(), StopwatchListener,LifecycleObserver {
-
+class MainActivity : AppCompatActivity(), StopwatchListener, LifecycleObserver {
 
     private lateinit var binding: ActivityMainBinding
 
     private val timerAdapter = TimerAdapter(this)
     private val timers = mutableListOf<Timer>()
-    private val  maxTimers = 10
+    private val maxTimers = 10
     private var nextId = 0
     private var currentID = -1
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,25 +33,34 @@ class MainActivity : AppCompatActivity(), StopwatchListener,LifecycleObserver {
         }
 
         binding.addNewTimerButton.setOnClickListener {
-            if(timers.size < 10)
-                if(binding.valueTimerStart.text.isNotEmpty() && binding.valueTimerStart.text.toString() != "0"){
-                    val startMinutes = binding.valueTimerStart.text.toString().toLong() * 1000L * 60L
-                    timers.add(Timer(nextId++, startMinutes,startMinutes, false, isFinish = false))
+            if (timers.size < 10)
+                if (binding.valueTimerStart.text.isNotEmpty() && binding.valueTimerStart.text.toString() != "0") {
+                    val startMinutes =
+                        binding.valueTimerStart.text.toString().toLong() * 1000L * 60L
+                    timers.add(Timer(nextId++, startMinutes, startMinutes, false, isFinish = false))
                     timerAdapter.submitList(timers.toList())
                     binding.valueTimerStart.text.clear()
-                }else{
-                    Toast.makeText(this, getString(R.string.add_value_uncorrect), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.add_value_uncorrect),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     binding.valueTimerStart.text.clear()
                 }
             else
-                Toast.makeText(this, getString(R.string.Max_quantity_timer) + maxTimers, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.Max_quantity_timer) + maxTimers,
+                    Toast.LENGTH_SHORT
+                ).show()
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {
         val startTime = timerAdapter.currentList.find { it.id == currentID }?.currentMs ?: 0L
-        if(startTime > 0L) {
+        if (startTime > 0L) {
             val startIntent = Intent(this, ForegroundService::class.java)
             startIntent.putExtra(COMMAND_ID, COMMAND_START)
             startIntent.putExtra(STARTED_TIMER_TIME_MS, startTime)
@@ -68,36 +74,44 @@ class MainActivity : AppCompatActivity(), StopwatchListener,LifecycleObserver {
         stopIntent.putExtra(COMMAND_ID, COMMAND_STOP)
         startService(stopIntent)
     }
+
     override fun start(id: Int) {
         currentID = id
         changeStopwatch(id, null, true, finish = false)
     }
 
     override fun stop(id: Int, currentMs: Long) {
-        if(currentID == id) currentID = -1
+        if (currentID == id) currentID = -1
         changeStopwatch(id, currentMs, false, finish = false)
     }
 
-
     override fun delete(id: Int) {
-        if(currentID == id) currentID = -1
+        if (currentID == id) currentID = -1
         timers.remove(timers.find { it.id == id })
         timerAdapter.submitList(timers.toList())
     }
 
-    override fun finish(id: Int, currentMs: Long,finish: Boolean) {
+    override fun finish(id: Int, currentMs: Long, finish: Boolean) {
         Toast.makeText(this, getString(R.string.Timer_end), Toast.LENGTH_SHORT).show()
         changeStopwatch(id, 0, false, finish)
     }
 
-    private fun changeStopwatch(id: Int, currentMs: Long?, isStarted: Boolean,finish: Boolean) {
-        timers.replaceAll{
+    private fun changeStopwatch(id: Int, currentMs: Long?, isStarted: Boolean, finish: Boolean) {
+        timers.replaceAll {
             when {
-                it.id == id -> Timer(it.id, it.startMs,currentMs ?: it.currentMs, isStarted,finish)
-                it.isStarted ->{
-                    Timer(it.id,  it.startMs,currentMs ?: it.currentMs, false,finish)
+                it.id == id -> Timer(
+                    it.id,
+                    it.startMs,
+                    currentMs ?: it.currentMs,
+                    isStarted,
+                    finish
+                )
+                it.isStarted -> {
+                    Timer(it.id, it.startMs, currentMs ?: it.currentMs, false, finish)
                 }
-                else -> {it}
+                else -> {
+                    it
+                }
             }
         }
         timerAdapter.submitList(timers.toList())
@@ -114,9 +128,9 @@ class MainActivity : AppCompatActivity(), StopwatchListener,LifecycleObserver {
             .setNegativeButton("No", null)
             .show()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         onAppForegrounded()
     }
-
 }
